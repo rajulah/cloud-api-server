@@ -8,7 +8,7 @@ or
 
 ```
 pip3 install fastapi
-pip3 install unicorn
+pip3 install uvicorn
 pip3 install python-multipart
 pip3 install boto3
 pip3 install awscli
