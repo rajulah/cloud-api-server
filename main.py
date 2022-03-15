@@ -3,21 +3,18 @@
 from fastapi import FastAPI, UploadFile, File
 from typing import List
 import os
-import aiofiles
+# import aiofiles
 
 import boto3 
 
 from utils import *
-
+import time
 app = FastAPI()
-# queue_url="https://sqs.us-east-1.amazonaws.com/027200419369/Queue1.fifo"
-# queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/sqs-send.fifo"
-# sqs_client = boto3.client('sqs', region_name='us-east-1')
 
 
 @app.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"REST Server": "Image Recognition API Server"}
 
 # @app.post("/upload")
 # async def upload_file(files: List[UploadFile] = File(...)):
@@ -38,36 +35,66 @@ async def root():
 #     print(push_images_to_sqs(b))
 #     return {"Result": "OK", "filenames": [file.filename for file in files]}
 
+
+def receive_msg_and_delete_image():
+    
+    sqs_client = boto3.client('sqs', region_name='us-east-1')
+    while True:
+        time.sleep(2)
+        try:
+            response = sqs_client.receive_message(QueueUrl=queue_url,MaxNumberOfMessages=1, MessageAttributeNames=['All'])
+        except ClientError:
+            logger.exception('Could not receive the message from the Queue!!!')
+            raise
+        else:
+            # print("response : ",response)
+            if len(response.get("Messages", [])) > 0:
+                json_data = json.loads(response.get("Messages", [])[0]["Body"])
+                img_data = json_data["encoded_img_data"]
+                img_name = response.get("Messages", [])[0]["MessageAttributes"]["image_name"]["StringValue"]
+                message_receipt_handle = response.get("Messages", [])[0]["ReceiptHandle"]
+                if len(message_receipt_handle) > 0:
+                        print("Deleting message with image name : ",img_name," ...")
+                        delete_response = sqs_client.delete_message(QueueUrl=queue_url,ReceiptHandle=message_receipt_handle)
+                        print("Delete response : ",delete_response)
+                filename = img_name.replace('.jpg', '').strip()
+                crct = str(correct_map.get(filename,''))
+                out = (str(filename),crct)
+                out = '('+str(filename)+','+str(crct)+')'
+                return out
+                break
+            else:
+                print("No new messages to read from the queue.")
+
+
+
 @app.post("/upload")
-async def upload_file(myfile: UploadFile = File(...)):
+def upload_file(myfile: UploadFile = File(...)):
+    start_time = time.time()
     new_dir_path = os.getcwd() + "/images/"
-    if not os.path.exists(new_dir_path):
-        os.makedirs(new_dir_path)
 
     destination_file_path = new_dir_path+myfile.filename #output file path
-    async with aiofiles.open(destination_file_path, 'wb') as out_file:
-        content = await myfile.read()
-        await out_file.write(content)
-        # while content := await myfile.read(1024):  # async read file chunk
-        #     await out_file.write(content)  # async write file chunk
 
-    a = push_images_to_sqs(myfile.filename)
-    return a+": ",myfile.filename
+    # file_location = f"files/{uploaded_file.filename}"
+    with open(destination_file_path, "wb+") as file_object:
+        file_object.write(myfile.file.read())
+    b = push_images_to_sqs(myfile.filename)
+    # time.sleep(1)
+    # a =  receive_msg_and_delete_image()
+    end_time = (time.time()-start_time)
+    # print("Done: ",myfile.filename + " in : ",str(end_time))
 
-@app.get("/delete")
+    # a = '(test_10,Paul)'
+    return "Done: ",myfile.filename + " in : ",str(end_time)
+    # return a.strip('"')
+    # return str(a) +" in : "+ str(end_time) + "   ",str(b)
+
+
+@app.get("/dev/delete_from_queue/")
 async def delete_sqs():
     while receive_msg_and_delete_image() != False:
         continue
     return "Yes"
-    # return {"Result": "OK", "filenames": [file.filename for file in files]}
-    # for file in files:
-    #     with open(file.filename, 'wb') as image:
-    #         content = await file.read()
-    #         image.write(content)
-    #         image.close()
-    #     a.append(file.filename)
-    # return a
-    # return JSONResponse(content={"filenames": file.filename})
 
 
 if __name__ == '__main__':
