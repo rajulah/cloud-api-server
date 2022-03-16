@@ -58,10 +58,10 @@ def receive_msg_and_delete_image():
                         delete_response = sqs_client.delete_message(QueueUrl=queue_url,ReceiptHandle=message_receipt_handle)
                         print("Delete response : ",delete_response)
                 filename = img_name.replace('.jpg', '').strip()
-                crct = str(correct_map.get(filename,''))
-                out = (str(filename),crct)
-                out = '('+str(filename)+','+str(crct)+')'
-                return out
+                # crct = str(correct_map.get(filename,''))
+                # out = (str(filename),crct)
+                # out = '('+str(filename)+','+str(crct)+')'
+                # return out
                 break
             else:
                 print("No new messages to read from the queue.")
