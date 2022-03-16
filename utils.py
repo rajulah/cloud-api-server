@@ -15,8 +15,12 @@ def get_encoded_img_data(image_name):
 
 image_source_folder = "images/"
 image_destination_path = ""
+# fifo queue
+# queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/sqs-send.fifo"
 
-queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/sqs-send.fifo"
+# standard queue
+queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-request-queue"
+response_queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-response-queue"
 sqs_client = boto3.client('sqs', region_name='us-east-1')
 
 def push_images_to_sqs(images_list_string):
