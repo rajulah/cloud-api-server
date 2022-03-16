@@ -18,9 +18,15 @@ image_destination_path = ""
 # fifo queue
 # queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/sqs-send.fifo"
 
-# standard queue
-queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-request-queue"
-response_queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-response-queue"
+# standard queues
+
+#harish sqs
+# queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-request-queue"
+# response_queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-response-queue"
+
+#suraj sqs
+queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/ImageQueueStandard"
+
 sqs_client = boto3.client('sqs', region_name='us-east-1')
 
 def push_images_to_sqs(images_list_string):
