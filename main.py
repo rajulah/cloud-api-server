@@ -36,7 +36,7 @@ async def root():
 #     return {"Result": "OK", "filenames": [file.filename for file in files]}
 
 
-def receive_msg_and_delete_image():
+def receive_messages_from_sqs():
     
     sqs_client = boto3.client('sqs', region_name='us-east-1')
     while True:
@@ -58,10 +58,10 @@ def receive_msg_and_delete_image():
                         delete_response = sqs_client.delete_message(QueueUrl=queue_url,ReceiptHandle=message_receipt_handle)
                         print("Delete response : ",delete_response)
                 filename = img_name.replace('.jpg', '').strip()
-                crct = str(correct_map.get(filename,''))
-                out = (str(filename),crct)
-                out = '('+str(filename)+','+str(crct)+')'
-                return out
+                # crct = str(correct_map.get(filename,''))
+                # out = (str(filename),crct)
+                # out = '('+str(filename)+','+str(crct)+')'
+                # return out
                 break
             else:
                 print("No new messages to read from the queue.")
@@ -80,7 +80,7 @@ def upload_file(myfile: UploadFile = File(...)):
         file_object.write(myfile.file.read())
     b = push_images_to_sqs(myfile.filename)
     # time.sleep(1)
-    # a =  receive_msg_and_delete_image()
+    # a =  receive_messages_from_sqs()
     end_time = (time.time()-start_time)
     # print("Done: ",myfile.filename + " in : ",str(end_time))
 
