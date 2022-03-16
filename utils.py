@@ -21,11 +21,11 @@ image_destination_path = ""
 # standard queues
 
 #harish sqs
-# queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-request-queue"
+queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-request-queue"
 # response_queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-response-queue"
 
 #suraj sqs
-queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/ImageQueueStandard"
+# queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/ImageQueueStandard"
 
 sqs_client = boto3.client('sqs', region_name='us-east-1')
 
@@ -42,7 +42,7 @@ def push_images_to_sqs(images_list_string):
             json_str = '{ "img_name" : "'+image_list[i]+'" , "encoded_img_data" : "'+encoded_image_data+'" }'
             # print("Image data : ",json_str)
             try:
-                response = sqs_client.send_message(QueueUrl=queue_url, MessageBody=json_str, MessageGroupId='activeimagelist', MessageAttributes={ 'image_name': { 'StringValue': image_list[i] , 'DataType': 'String' } } )
+                response = sqs_client.send_message(QueueUrl=queue_url, MessageBody=json_str, MessageAttributes={ 'image_name': { 'StringValue': image_list[i] , 'DataType': 'String' } } )
             except:
                 print("******** Failed  - ",image_list[i])
             else:
