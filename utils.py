@@ -25,6 +25,7 @@ image_destination_path = ""
 # response_queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-response-queue"
 
 #suraj sqs
+
 queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/ImageQueueStandard"
 response_queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/resultQueueStandard"
 

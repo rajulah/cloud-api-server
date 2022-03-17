@@ -21,8 +21,8 @@ class BackgroundRunner:
         sqs_client = boto3.client('sqs', region_name='us-east-1')
         try:
             response = sqs_client.receive_message(QueueUrl=response_queue_url,MaxNumberOfMessages=1, MessageAttributeNames=['All'])
-        except ClientError:
-            logger.exception('Could not receive the message from the Queue!!!')
+        except Exception as e:
+            print('Could not receive the message from the Queue!!!', e)
             raise
         else:
             # print("response : ",response)
