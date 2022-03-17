@@ -27,6 +27,7 @@ class BackgroundRunner:
         else:
             # print("response : ",response)
             if len(response.get("Messages", [])) > 0:
+                self.val += 1
                 json_data = json.loads(response.get("Messages", [])[0]["Body"], strict = False)
                 # img_data = json_data["encoded_img_data"]
                 img_name = response.get("Messages", [])[0]["MessageAttributes"]["image_name"]["StringValue"]
@@ -53,7 +54,6 @@ class BackgroundRunner:
                 # out = '('+str(filename)+','+str(crct)+')'
                 # return out
             else:
-                self.value += 1
                 print(" --- No new messages to read from the queue.")
 
     async def run_main(self):
@@ -71,6 +71,10 @@ async def app_startup():
 @app.get("/runner_value")
 def root():
     return runner.dict
+
+@app.get("/output_count")
+def root():
+    return runner.value
 
 
 
