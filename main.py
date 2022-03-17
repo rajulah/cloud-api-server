@@ -4,7 +4,7 @@ from fastapi import FastAPI, UploadFile, File
 from typing import List
 import os
 # import aiofiles
-
+import asyncio
 import boto3 
 
 from utils import *
@@ -12,37 +12,15 @@ import time
 app = FastAPI()
 
 
-@app.get("/")
-async def root():
-    return {"REST Server": "Image Recognition API Server"}
+class BackgroundRunner:
+    def __init__(self):
+        self.value = 0
+        self.dict = {}
 
-# @app.post("/upload")
-# async def upload_file(files: List[UploadFile] = File(...)):
-#     new_dir_path = os.getcwd() + "/images/"
-#     if not os.path.exists(new_dir_path):
-#         os.makedirs(new_dir_path)
-#     a = []
-#     b = ""
-#     for file in files:
-#         destination_file_path = new_dir_path+file.filename #output file path
-#         async with aiofiles.open(destination_file_path, 'wb') as out_file:
-#             while content := await file.read(1024):  # async read file chunk
-#                 await out_file.write(content)  # async write file chunk
-#         if b == "":
-#             b = file.filename
-#         else:
-#             b = b+","+file.filename
-#     print(push_images_to_sqs(b))
-#     return {"Result": "OK", "filenames": [file.filename for file in files]}
-
-
-def receive_messages_from_sqs():
-    
-    sqs_client = boto3.client('sqs', region_name='us-east-1')
-    while True:
-        time.sleep(2)
+    def receive_messages_from_sqs(self):
+        sqs_client = boto3.client('sqs', region_name='us-east-1')
         try:
-            response = sqs_client.receive_message(QueueUrl=queue_url,MaxNumberOfMessages=1, MessageAttributeNames=['All'])
+            response = sqs_client.receive_message(QueueUrl=response_queue_url,MaxNumberOfMessages=1, MessageAttributeNames=['All'])
         except ClientError:
             logger.exception('Could not receive the message from the Queue!!!')
             raise
@@ -50,21 +28,54 @@ def receive_messages_from_sqs():
             # print("response : ",response)
             if len(response.get("Messages", [])) > 0:
                 json_data = json.loads(response.get("Messages", [])[0]["Body"])
-                img_data = json_data["encoded_img_data"]
+                # img_data = json_data["encoded_img_data"]
                 img_name = response.get("Messages", [])[0]["MessageAttributes"]["image_name"]["StringValue"]
+                # print(json_data['img_name'],json_data['img_output'])
+
+                # response format for referecne
+                # [{'MessageId': '9843b8c4-f565-44fc-9b18-5b06fda6421a', 'ReceiptHandle': 'AQEBywr1zXAnD3lgeuAHfl2CRAMfJKK+B/WUa4rlEL7tBcZk5GVOVjlDEJa+Dtjw5tqZxh9V5VaJSj03xSjyEwROnBG4b45WN6KxOqlEXBRXFJCiCYclSTKB+zz5iAjO47jTryVWh2/L/+FB8MHXRYnWFn/037d4SGzr7coKPFvYKN7Vqd4Gk3Uuixm4lzQG3iKZsItPpnUmwH1lMVqmrqza1liV+aWq91VhRPfKwyRaoxNCOmvgBafVPpvI339KAJ5gXeUiKKTxuqjlTF9YFA3lc0W4SfTDV0h1SnsT7je0AeicL2+iMRo2KNaFAzTzcWz3sftp8LDpCk1Vh5IplWnX1MOPIUzXnqm+wh5qqVWJGIZ9UC6FPt8gAvUCtkUtcgZXUPWQI3qssflxsTLCydu9oQ==', 'MD5OfBody': '5d138413a2203342b327a4399c0954f4', 'Body': '{ "img_name" : "test_29.jpg" , "img_output" : "Wang" }', 'MD5OfMessageAttributes': '00ce38a3679f52b4c177713618dacf28', 'MessageAttributes': {'image_name': {'StringValue': 'test_29.jpg', 'DataType': 'String'}}}]
+
+
+
                 message_receipt_handle = response.get("Messages", [])[0]["ReceiptHandle"]
                 if len(message_receipt_handle) > 0:
                         print("Deleting message with image name : ",img_name," ...")
-                        delete_response = sqs_client.delete_message(QueueUrl=queue_url,ReceiptHandle=message_receipt_handle)
-                        print("Delete response : ",delete_response)
-                filename = img_name.replace('.jpg', '').strip()
+                        delete_response = sqs_client.delete_message(QueueUrl=response_queue_url,ReceiptHandle=message_receipt_handle)
+                        # print("Delete response : ",delete_response)
+                
+                filename = str(json_data['img_name']).replace('.jpg', '').strip()
+                self.dict[filename] = json_data['img_output']
+
                 # crct = str(correct_map.get(filename,''))
                 # out = (str(filename),crct)
                 # out = '('+str(filename)+','+str(crct)+')'
                 # return out
-                break
             else:
-                print("No new messages to read from the queue.")
+                self.value += 1
+                print(" --- No new messages to read from the queue.")
+
+    async def run_main(self):
+        while True:
+            await asyncio.sleep(2)
+            self.receive_messages_from_sqs()
+            
+
+runner = BackgroundRunner()
+
+@app.on_event('startup')
+async def app_startup():
+    asyncio.create_task(runner.run_main())
+
+@app.get("/runner_value")
+def root():
+    return runner.dict
+
+
+
+@app.get("/")
+async def root():
+    return {"REST Server": "Image Recognition API Server"}
+
 
 
 
@@ -79,15 +90,26 @@ def upload_file(myfile: UploadFile = File(...)):
     with open(destination_file_path, "wb+") as file_object:
         file_object.write(myfile.file.read())
     b = push_images_to_sqs(myfile.filename)
+    # name = myfile.filename
+    # name = name.strip('.jpg')
+    # a = push_to_response_queue(myfile.filename,correct_map.get(name,''))
     # time.sleep(1)
     # a =  receive_messages_from_sqs()
     end_time = (time.time()-start_time)
     # print("Done: ",myfile.filename + " in : ",str(end_time))
 
-    # a = '(test_10,Paul)'
-    return "Done: ",myfile.filename + " in : ",str(end_time)
-    # return a.strip('"')
-    # return str(a) +" in : "+ str(end_time) + "   ",str(b)
+    while True:
+        name = myfile.filename
+        name = name.strip('.jpg')
+        # print(name,runner.dict)
+        if name in runner.dict.keys():
+            result = runner.dict[name]
+            del runner.dict[name]
+            return str(result)
+            # return (name,result)
+            break
+        else:
+            time.sleep(3)
 
 
 @app.get("/dev/delete_from_queue/")
