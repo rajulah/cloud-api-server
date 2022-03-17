@@ -44,7 +44,9 @@ class BackgroundRunner:
                         # print("Delete response : ",delete_response)
                 
                 filename = str(json_data['img_name']).replace('.jpg', '').strip()
-                self.dict[filename] = json_data['img_output']
+                output_val = str(json_data['img_output'])
+                output_val = output_val.strip("\n")
+                self.dict[filename] = output_val
 
                 # crct = str(correct_map.get(filename,''))
                 # out = (str(filename),crct)
