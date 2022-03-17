@@ -62,9 +62,9 @@ class BackgroundRunner:
 
 runner = BackgroundRunner()
 
-@app.on_event('startup')
-async def app_startup():
-    asyncio.create_task(runner.run_main())
+# @app.on_event('startup')
+# async def app_startup():
+#     asyncio.create_task(runner.run_main())
 
 @app.get("/runner_value")
 def root():
