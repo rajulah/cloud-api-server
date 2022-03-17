@@ -103,11 +103,12 @@ def upload_file(myfile: UploadFile = File(...)):
     # a =  receive_messages_from_sqs()
     end_time = (time.time()-start_time)
     # print("Done: ",myfile.filename + " in : ",str(end_time))
-
+    count = 0
     while True:
+        count += 1
         name = myfile.filename
         name = name.strip('.jpg')
-        # print(name,runner.dict)
+        print("\n\n",name,", count ",count, ":  dict - ", runner.dict,"\n\n\n")
         if name in runner.dict.keys():
             result = runner.dict[name]
             print(name,result)
