@@ -27,7 +27,7 @@ class BackgroundRunner:
         else:
             # print("response : ",response)
             if len(response.get("Messages", [])) > 0:
-                json_data = json.loads(response.get("Messages", [])[0]["Body"])
+                json_data = json.loads(response.get("Messages", [])[0]["Body"], strict = False)
                 # img_data = json_data["encoded_img_data"]
                 img_name = response.get("Messages", [])[0]["MessageAttributes"]["image_name"]["StringValue"]
                 # print(json_data['img_name'],json_data['img_output'])
@@ -104,6 +104,7 @@ def upload_file(myfile: UploadFile = File(...)):
         # print(name,runner.dict)
         if name in runner.dict.keys():
             result = runner.dict[name]
+            print(name,result)
             del runner.dict[name]
             return str(result)
             # return (name,result)
