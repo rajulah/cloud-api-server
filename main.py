@@ -243,8 +243,9 @@ def upload_file(myfile: UploadFile = File(...)):
         name = name.strip('.jpg')
         print(name,runner.dict)
         if name in runner.dict.keys():
+            result = correct_map.get(name,'')
             del runner.dict[name]
-            return str(correct_map.get(name,''))
+            return str(result)
             # return (name,runner.dict[name])
             break
         else:
