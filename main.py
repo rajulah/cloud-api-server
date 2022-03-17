@@ -12,7 +12,7 @@ import time
 app = FastAPI()
 
 
-class BackgroundRunner:
+# class BackgroundRunner:
     def __init__(self):
         self.value = 0
         self.dict = {}
@@ -60,7 +60,7 @@ class BackgroundRunner:
             self.receive_messages_from_sqs()
             
 
-runner = BackgroundRunner()
+# runner = BackgroundRunner()
 
 # @app.on_event('startup')
 # async def app_startup():
@@ -97,19 +97,19 @@ def upload_file(myfile: UploadFile = File(...)):
     # a =  receive_messages_from_sqs()
     end_time = (time.time()-start_time)
     # print("Done: ",myfile.filename + " in : ",str(end_time))
-
-    while True:
-        name = myfile.filename
-        name = name.strip('.jpg')
-        # print(name,runner.dict)
-        if name in runner.dict.keys():
-            result = runner.dict[name]
-            del runner.dict[name]
-            return str(result)
-            # return (name,result)
-            break
-        else:
-            time.sleep(3)
+    return b
+    # while True:
+    #     name = myfile.filename
+    #     name = name.strip('.jpg')
+    #     # print(name,runner.dict)
+    #     if name in runner.dict.keys():
+    #         result = runner.dict[name]
+    #         del runner.dict[name]
+    #         return str(result)
+    #         # return (name,result)
+    #         break
+    #     else:
+    #         time.sleep(3)
 
 
 @app.get("/dev/delete_from_queue/")
