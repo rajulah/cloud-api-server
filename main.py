@@ -244,7 +244,6 @@ def upload_file(myfile: UploadFile = File(...)):
         print(name,runner.dict)
         if name in runner.dict.keys():
             del runner.dict[name]
-            print(runner.dict[name])
             return str(correct_map.get(name,''))
             # return (name,runner.dict[name])
             break
