@@ -27,7 +27,7 @@ class BackgroundRunner:
         else:
             # print("response : ",response)
             if len(response.get("Messages", [])) > 0:
-                self.val += 1
+                self.value += 1
                 json_data = json.loads(response.get("Messages", [])[0]["Body"], strict = False)
                 # img_data = json_data["encoded_img_data"]
                 img_name = response.get("Messages", [])[0]["MessageAttributes"]["image_name"]["StringValue"]
