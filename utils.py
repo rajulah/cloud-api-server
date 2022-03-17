@@ -26,6 +26,7 @@ image_destination_path = ""
 
 #suraj sqs
 queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/ImageQueueStandard"
+response_queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/resultQueueStandard"
 
 sqs_client = boto3.client('sqs', region_name='us-east-1')
 
@@ -105,24 +106,16 @@ def receive_msg_and_delete_image():
 
 
 
-# print("--------------------------------------------------------------------------------")
-# print("pushing image data of : ",file.filename," to SQS queue...")
-# # full_image_path = image_source_folder+image_list[i]
-# encoded_image_data = get_encoded_img_data(file).decode('utf-8')
-# json_str = '{ "img_name" : "'+file.filename+'" , "encoded_img_data" : "'+encoded_image_data+'" }'
-# print("Image data : ",json_str)
-# try:
-#     response = sqs_client.send_message(QueueUrl=queue_url, MessageBody=json_str, MessageGroupId='activeimagelist', MessageAttributes={ 'image_name': { 'StringValue': file.filename , 'DataType': 'String' } } )
-# except:
-#     print("Exception occured while pushing data to SQS queue!!!")
-# else:
-#     print("Image data of : ",file.filename," pushed to SQS queue successfully.")
-#     print("Response : ",response)
-#     print("\n")
-#     print("Deleting image file : ",file.filename," from source folder....")
-#     # if os.path.exists(full_image_path):
-#     #     os.remove(full_image_path)
-#     #     print("Delete successful.")
-#     # else:
-#     #     print("The image file : ",full_image_path," does not exist !!!") 
-# print("--------------------------------------------------------------------------------")
+
+
+# def push_to_response_queue(image_file_name, image_recog_result):
+#     sqs_client = boto3.client('sqs', region_name='us-east-1')
+#     json_str = '{ "img_name" : "'+image_file_name+'" , "img_output" : "'+image_recog_result+'" }'
+#     try:
+#         response = sqs_client.send_message(QueueUrl=response_queue_url, MessageBody=json_str, MessageAttributes={ 'image_name': { 'StringValue': image_file_name , 'DataType': 'String' } } )
+#     except ClientError as e:
+#         print("Exception occured while pushing output data to SQS queue!!!",e)
+#         logging.error(e)
+#         return False
+#     else:
+#         print("Image output of : ",image_file_name," pushed to SQS queue successfully.")
