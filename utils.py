@@ -21,12 +21,12 @@ image_destination_path = ""
 # standard queues
 
 #harish sqs
-# queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-request-queue"
-# response_queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-response-queue"
+queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-request-queue"
+response_queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-response-queue"
 
 #suraj sqs
-queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/ImageQueueStandard"
-response_queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/resultQueueStandard"
+# queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/ImageQueueStandard"
+# response_queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/resultQueueStandard"
 
 sqs_client = boto3.client('sqs', region_name='us-east-1')
 
