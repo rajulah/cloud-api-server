@@ -27,7 +27,7 @@ class BackgroundRunner:
         else:
             # print("response : ",response)
             if len(response.get("Messages", [])) > 0:
-                json_data = json.loads(response.get("Messages", [])[0]["Body"])
+                json_data = json.loads(response.get("Messages", [])[0]["Body"], strict=False)
                 # img_data = json_data["encoded_img_data"]
                 img_name = response.get("Messages", [])[0]["MessageAttributes"]["image_name"]["StringValue"]
                 # print(json_data['img_name'],json_data['img_output'])
@@ -44,7 +44,9 @@ class BackgroundRunner:
                         # print("Delete response : ",delete_response)
                 
                 filename = str(json_data['img_name']).replace('.jpg', '').strip()
-                self.dict[filename] = json_data['img_output']
+                output_val = str(json_data['img_output'])
+                output_val = output_val.strip("\n")
+                self.dict[filename] = output_val
 
                 # crct = str(correct_map.get(filename,''))
                 # out = (str(filename),crct)
@@ -120,5 +122,15 @@ async def delete_sqs():
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    uvicorn.run(app, host='0.0.0.0', port=3000)
     print("running")
+
+
+
+# while True:
+#     received_msg = SQS.message_wrapper.receive_messages(responseQue, 10, 1)
+#     for r in received_msg:
+#         if r.message_attributes['identifier']['StringValue'] == identifier:
+#             message_wrapper.delete_message(r)
+#             print(json.loads(r.body))
+#             return Response(content=json.loads(r.body)[identifier], media_type="text/plain")
