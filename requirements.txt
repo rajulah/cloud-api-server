@@ -3,3 +3,4 @@ uvicorn
 boto3==1.21.18
 python-multipart
 awscli
+redis
