@@ -75,9 +75,15 @@ def upload_file(myfile: UploadFile = File(...)):
             time.sleep(3)
 
 
-@app.get("/dev/delete_from_queue/")
-async def delete_sqs():
+@app.get("/dev/delete_from_request_queue/")
+async def delete_request_sqs():
     while receive_msg_and_delete_image() != False:
+        continue
+    return "Yes"
+
+@app.get("/dev/delete_from_response_queue/")
+async def delete_response_sqs():
+    while delete_from_response_queue() != False:
         continue
     return "Yes"
 
@@ -88,5 +94,5 @@ async def flush_redis():
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    uvicorn.run(app, host='0.0.0.0', port=3000)
     print("running")

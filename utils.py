@@ -21,13 +21,13 @@ image_destination_path = ""
 # standard queues
 
 #harish sqs
-# queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-request-queue"
-# response_queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-response-queue"
+queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-request-queue"
+response_queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-response-queue"
 
 #suraj sqs
 
-queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/ImageQueueStandard"
-response_queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/resultQueueStandard"
+# queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/ImageQueueStandard"
+# response_queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/resultQueueStandard"
 
 sqs_client = boto3.client('sqs', region_name='us-east-1')
 
@@ -77,6 +77,47 @@ def receive_msg_and_delete_image():
             json_data = json.loads(response.get("Messages", [])[0]["Body"])
             img_data = json_data["encoded_img_data"]
             img_name = response.get("Messages", [])[0]["MessageAttributes"]["image_name"]["StringValue"]
+            message_receipt_handle = response.get("Messages", [])[0]["ReceiptHandle"]
+            if len(message_receipt_handle) > 0:
+                    print("Deleting message with image name : ",img_name," ...")
+                    delete_response = sqs_client.delete_message(QueueUrl=queue_url,ReceiptHandle=message_receipt_handle)
+                    print("Delete response : ",delete_response)
+            #   img_name = response['MessageAttributes']['image_name']['StringValue']
+            # print("encoded_img_data : ",img_data)
+            # print("image name : ",img_name)
+            # print("Decoding image data ....")
+            # base64_img_bytes = img_data.encode('utf-8')
+            # decoded_image_data = base64.decodebytes(base64_img_bytes)
+            # try:
+            #     image_result = open('decoded_'+img_name, 'wb')
+            #     image_result.write(decoded_image_data)
+            # except:
+            #     print("Exception occured while decoding the image data!!!")
+            #     print("Will retry after few seconds...!!!")
+            #     raise
+            # else:
+            #     if len(message_receipt_handle) > 0:
+            #         print("Deleting message with image name : ",img_name," ...")
+            #         delete_response = sqs_client.delete_message(QueueUrl=queue_url,ReceiptHandle=message_receipt_handle)
+            #         print("Delete response : ",delete_response)
+        else:
+            print("No new messages to read from the queue.")
+            return False
+
+def delete_from_response_queue():
+    
+    sqs_client = boto3.client('sqs', region_name='us-east-1')
+    try:
+        response = sqs_client.receive_message(QueueUrl=response_queue_url,MaxNumberOfMessages=1, MessageAttributeNames=['All'])
+    except ClientError:
+        logger.exception('Could not receive the message from the Queue!!!')
+        raise
+    else:
+        # print("response : ",response)
+        if len(response.get("Messages", [])) > 0:
+            # json_data = json.loads(response.get("Messages", [])[0]["Body"])
+            # img_data = json_data["encoded_img_data"]
+            # img_name = response.get("Messages", [])[0]["MessageAttributes"]["image_name"]["StringValue"]
             message_receipt_handle = response.get("Messages", [])[0]["ReceiptHandle"]
             if len(message_receipt_handle) > 0:
                     print("Deleting message with image name : ",img_name," ...")
