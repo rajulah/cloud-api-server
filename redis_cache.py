@@ -11,29 +11,16 @@ red.set('mykey', 'Hello from Python!')
 value = red.get('mykey') 
 print(value)
 
-# red.zadd('vehicles', {'car' : 0})
-# red.zadd('vehicles', {'bike' : 0})
-# vehicles = red.zrange('vehicles', 0, -1)
-# print(vehicles)
-
-red.set('team', 'val')
-red.set('hey','b')
-value = red.get('team')
-print(str(value))
-
-red.delete('hey')
-print(red.get('hey'))
-
 # red.flushdb()
-# print(red.get('team'))
-# #harish sqs
-# queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-request-queue"
-# response_queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-response-queue"
 
-# #suraj sqs
+# make sure the aws credentials are configured in .aws folder for boto3 to access
+# harish sqs urls (comment and uncomment according to who is using the app)
+queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-request-queue"
+response_queue_url = "https://sqs.us-east-1.amazonaws.com/247558419887/cc-project-response-queue"
 
-queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/ImageQueueStandard"
-response_queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/resultQueueStandard"
+# suraj sqs urls (comment and uncomment according to who is using the app)
+# queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/ImageQueueStandard"
+# response_queue_url = "https://sqs.us-east-1.amazonaws.com/027200419369/resultQueueStandard"
 
 def receive_messages_from_sqs():
     sqs_client = boto3.client('sqs', region_name='us-east-1')
@@ -63,11 +50,6 @@ def receive_messages_from_sqs():
                 output_val = str(json_data['img_output'])
                 output_val = output_val.strip("\n")
 
-                # filename = str(img_name).replace('.jpg', '').strip()
-                # output_val = str(json_data['img_output'])
-                # output_val = output_val.strip("\n")
-
-                # self.dict[filename] = output_val
                 red.set(filename,output_val)
 
             else:

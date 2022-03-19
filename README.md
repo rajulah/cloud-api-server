@@ -19,6 +19,10 @@ pip3 install redis
 ```nohup uvicorn main:app --host 0.0.0.0 --port 3000 >> fastapiLogs.log 2>&1 &```
 or
 ```nohup uvicorn main:app --workers 4 --host 0.0.0.0 --port 3000 >> fastapiLogs.log 2>&1 &```
+```nohup redis-server >> redislogs.log 2>&1 &```
+```python3 loadBalancer.py```
+
+
 
 # Accessing API docs in browser
 ```http://{ec2-public-url}:3000/docs```

@@ -19,17 +19,20 @@ port= '6379')
 red.set('mykey', 'Hello from Python!')
 value = red.get('mykey') 
 
-@app.get("/get_redis/{redis_key}")
-def root(redis_key: str):
-    out = red.get(redis_key)
-    if out == None or out == "":
-        return "Not found"
-    return red.get(redis_key)
 
-@app.get("/set_redis/{rediskey}/{redisvalue}")
-def root(rediskey: str,redisvalue:str):
-    red.set(rediskey,redisvalue)
-    return red.get(rediskey)
+# API used only by developer for testing during development
+# @app.get("/get_redis/{redis_key}")
+# def root(redis_key: str):
+#     out = red.get(redis_key)
+#     if out == None or out == "":
+#         return "Not found"
+#     return red.get(redis_key)
+
+# API used only by developer for testing during development
+# @app.get("/set_redis/{rediskey}/{redisvalue}")
+# def root(rediskey: str,redisvalue:str):
+#     red.set(rediskey,redisvalue)
+#     return red.get(rediskey)
 
 
 
@@ -47,15 +50,10 @@ def upload_file(myfile: UploadFile = File(...)):
 
     destination_file_path = new_dir_path+myfile.filename #output file path
 
-    # file_location = f"files/{uploaded_file.filename}"
     with open(destination_file_path, "wb+") as file_object:
         file_object.write(myfile.file.read())
     b = push_images_to_sqs(myfile.filename)
-    # name = myfile.filename
-    # name = name.strip('.jpg')
-    # a = push_to_response_queue(myfile.filename,correct_map.get(name,''))
-    # time.sleep(1)
-    # a =  receive_messages_from_sqs()
+
     end_time = (time.time()-start_time)
     # print("Done: ",myfile.filename + " in : ",str(end_time))
     count = 0
@@ -75,22 +73,25 @@ def upload_file(myfile: UploadFile = File(...)):
             time.sleep(3)
 
 
-@app.get("/dev/delete_from_request_queue/")
-async def delete_request_sqs():
-    while receive_msg_and_delete_image() != False:
-        continue
-    return "Yes"
+# API used only by developer for testing during development
+# @app.get("/dev/delete_from_request_queue/")
+# async def delete_request_sqs():
+#     while receive_msg_and_delete_image() != False:
+#         continue
+#     return "Yes"
 
-@app.get("/dev/delete_from_response_queue/")
-async def delete_response_sqs():
-    while delete_from_response_queue() != False:
-        continue
-    return "Yes"
+# API used only by developer for testing during development
+# @app.get("/dev/delete_from_response_queue/")
+# async def delete_response_sqs():
+#     while delete_from_response_queue() != False:
+#         continue
+#     return "Yes"
 
-@app.get("/dev/flush_redis/")
-async def flush_redis():
-    red.flushdb()
-    return True
+# API used only by developer for testing during development
+# @app.get("/dev/flush_redis/")
+# async def flush_redis():
+#     red.flushdb()
+#     return True
 
 
 if __name__ == '__main__':
